@@ -85,8 +85,43 @@ void test_basic()
     cout<<"556778\\bkkk:"<<endl;
     cout<<"556778\bkkk"<<endl;
     cout<<db<<"\t"<<l<<endl;
-    l = reinterpret_cast<long&>(db);
+    //l = reinterpret_cast<long&>(db);
+    l = (long&)(db);
     cout<<db<<"\t"<<l<<endl;
+}
+#include <boost/filesystem.hpp>
+using namespace boost;
+void listfile(filesystem::path path);
+void test_filesystem()
+{
+
+    filesystem::path path("/home/jiang");
+    listfile(path);
+}
+void listfile(filesystem::path path)
+{
+    filesystem::directory_iterator it(path),end;
+    while(it!=end)
+    {
+        cout<<*it<<endl;
+        if( filesystem::is_directory(it->status()) )
+        {
+            listfile(it->path());
+        }
+        ++it;
+    }
+}
+#include <signal.h>
+
+void signal_handler(int sig)
+{
+    cout<<sig<<endl;
+}
+void test_signal()
+{
+    signal(9,signal_handler);
+    char buf[1024] = {0};
+    cin>>buf;
 }
 int main(int argc,char * argv[])
 {
@@ -101,6 +136,8 @@ int main(int argc,char * argv[])
             ("template","template test")
             ("hash","hash test")
             ("basic","basic test")
+            ("filesystem","filesystem test")
+            ("signal","signal test")
             ;
     variables_map vm;
     try
@@ -137,9 +174,17 @@ int main(int argc,char * argv[])
     {
         test_hash();
     }
-    else if("basic")
+    else if(vm.count("basic"))
     {
         test_basic();
+    }
+    else if(vm.count("filesystem"))
+    {
+        test_filesystem();
+    }
+    else if(vm.count("signal"))
+    {
+        test_signal();
     }
     else
     {
